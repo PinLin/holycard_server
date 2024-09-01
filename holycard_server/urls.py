@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from card.views import get_card
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('card/<str:uid>/', get_card, name='get_card'),
 ]

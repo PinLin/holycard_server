@@ -1,0 +1,55 @@
+networks:
+  holycard:
+
+volumes:
+  postgres_data:
+
+secrets:
+  web_secret_key:
+    file: ./web_secret_key.txt
+  postgres_password:
+    file: ./postgres_password.txt
+
+services:
+  web:
+    build: .
+    image: pinlin/holycard-server:latest
+    restart: always
+    networks:
+      - holycard
+    secrets:
+      - web_secret_key
+      - postgres_password
+    environment:
+      SECRET_KEY_FILE: /run/secrets/web_secret_key
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: holycard
+      POSTGRES_USERNAME: holycard
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      REDIS_URI: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16.4-alpine
+    restart: always
+    networks:
+      - holycard
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    secrets:
+      - postgres_password
+    environment:
+      POSTGRES_DB: holycard
+      POSTGRES_USER: holycard
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    networks:
+      - holycard
