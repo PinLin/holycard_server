@@ -9,7 +9,7 @@ from .models import MifareClassicCard, MifareClassicCardSector
 @ratelimit(key="ip", rate="30/m", method="GET", block=True)
 @require_http_methods(["GET"])
 def get_card(request, uid):
-    card = get_object_or_404(MifareClassicCard, uid=uid)
+    card = get_object_or_404(MifareClassicCard, uid__iexact=uid)
     card_sectors = MifareClassicCardSector.objects.filter(card=card).values(
         "index", "key_a", "key_b"
     )
