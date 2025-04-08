@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_ratelimit",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.openid_connect",
     "card",
 ]
 
@@ -53,14 +57,38 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_ratelimit.middleware.RatelimitMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+SOCIALACCOUNT_ADAPTER = "holycard_server.adapter.CustomSocialAccountAdapter"
+SOCIALACCOUNT_PROVIDERS = {
+    "openid_connect": {
+        "OAUTH_PKCE_ENABLED": True,
+        "APPS": [
+            {
+                "provider_id": "my-oidc-server",
+                "name": "My OIDC Server",
+                "client_id": os.getenv("OIDC_CLIENT_ID", ""),
+                "secret": os.getenv("OIDC_CLIENT_SECRET", ""),
+                "settings": {
+                    "server_url": os.getenv("OIDC_WELL_KNOWN_URL", ""),
+                },
+            },
+        ],
+    }
+}
 
 ROOT_URLCONF = "holycard_server.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -68,6 +96,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
             ],
         },
     },
