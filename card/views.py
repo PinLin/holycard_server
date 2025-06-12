@@ -18,9 +18,15 @@ def get_card(request, uid):
         {
             "uid": card.uid,
             "type": card.type,
+            "number": card.number,
+            "nickname": card.nickname,
+            "is_kuokuang_card": card.is_kuokuang_card,
+            # TODO: Deprecated fields, remove in future versions
+            # ==================================================================
             "name": card.number,
             "comment": card.nickname,
             "tags": ["KuoKuangCard"] if card.is_kuokuang_card else [],
+            # ==================================================================
             "sectors": [
                 {
                     "index": sector["index"],
